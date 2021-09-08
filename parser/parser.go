@@ -79,7 +79,7 @@ func (p *Parser) parseValue() ast.Value {
 	case token.LBRACE:
 		return p.parseObjectValue()
 	default:
-		msg := fmt.Sprintf("Invalid token %s", p.curToken.Literal)
+		msg := fmt.Sprintf("Error: unexpected token %s", p.curToken.Literal)
 		p.Errors = append(p.Errors, msg)
 		return nil
 	}

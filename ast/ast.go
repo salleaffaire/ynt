@@ -26,6 +26,7 @@ func (p *Document) String() string {
 	for _, s := range p.Values {
 		if s != nil {
 			out.WriteString(s.String())
+			out.WriteString("\n")
 		} else {
 			out.WriteString("nil")
 		}

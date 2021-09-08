@@ -124,11 +124,16 @@ func (l *Lexer) nextToken() token.Token {
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
-		} else if isDigit(l.ch) {
-			tok.Literal = l.readNumber()
+		} else if isDigit(l.ch) || l.ch == '-' {
 			tok.Type = token.NUMBER
+			tok.Literal = l.readNumber()
+			if len(l.Errors) != 0 {
+				tok.Type = token.ILLEGAL
+			}
 			return tok
 		} else {
+			mes := fmt.Sprintf("Error: invalid caracter %c - line %d", l.ch, l.lineNumber)
+			l.Error(mes)
 			tok = newToken(token.ILLEGAL, l.ch)
 		}
 	}
@@ -195,13 +200,60 @@ func (l *Lexer) peekChar() byte {
 func (l *Lexer) readNumber() string {
 	position := l.position
 	l.state = false
-	for isDigit(l.ch) || l.ch == '.' {
-		// fmt.Println("Digit: ", string(l.ch))
+
+	// It can start with a minus sign
+	if l.ch == '-' {
 		l.readChar()
-		if l.ch == '.' {
-			l.state = true
+	}
+
+	// There has got to be a digit here (0-9)
+	// If it starts with a 0, there will only be 1 caharter
+	if l.ch == '0' {
+		l.readChar()
+	} else if isNonZeroDigit(l.ch) {
+		l.readChar()
+		for isDigit(l.ch) {
+			l.readChar()
+		}
+	} else {
+		mes := fmt.Sprintf("Error: unexpected caracter %c in number %s - line %d position %d",
+			l.ch, l.input[position:l.position], l.lineNumber, l.position)
+		l.Error(mes)
+		return l.input[position:l.position]
+	}
+
+	// Fraction
+	if l.ch == '.' {
+		l.readChar()
+
+		if !isDigit(l.ch) {
+			mes := fmt.Sprintf("Error: unexpected caracter %c in number %s - line %d position %d",
+				l.ch, l.input[position:l.position], l.lineNumber, l.position)
+			l.Error(mes)
+			return l.input[position:l.position]
+		}
+
+		for isDigit(l.ch) {
+			l.readChar()
 		}
 	}
+
+	// Here we have found an exponent
+	if l.ch == 'e' || l.ch == 'E' {
+		l.readChar()
+		if l.ch == '-' || l.ch == '+' || isDigit(l.ch) {
+			l.readChar()
+		} else {
+			mes := fmt.Sprintf("Error: unexpected caracter %c in number %s - line %d position %d",
+				l.ch, l.input[position:l.position], l.lineNumber, l.position)
+			l.Error(mes)
+			return l.input[position:l.position]
+		}
+		for isDigit(l.ch) {
+			l.readChar()
+		}
+	}
+
 	return l.input[position:l.position]
 }
 
@@ -211,6 +263,10 @@ func isLetter(ch byte) bool {
 
 func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
+}
+
+func isNonZeroDigit(ch byte) bool {
+	return '1' <= ch && ch <= '9'
 }
 
 func (l *Lexer) skipWhitespace() {

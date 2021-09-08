@@ -76,3 +76,37 @@ func TestNextToken(t *testing.T) {
 
 	}
 }
+
+func TestNextTokenNUmber(t *testing.T) {
+	input := "000"
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.NUMBER, "0"},
+		{token.EOF, ""},
+	}
+
+	l := New(input)
+
+	for i, tt := range tests {
+		// fmt.Println("Test : ", tt.expectedType)
+		tok := l.NextToken()
+
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+				i, tt.expectedType, tok.Type)
+		}
+
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - litearl wrong. expected=%q, got=%q",
+				i, tt.expectedLiteral, tok.Literal)
+		}
+
+		fmt.Println("Token Type   : ", tok.Type)
+		fmt.Println("Token Literal: ", tok.Literal)
+		fmt.Println()
+
+	}
+}
