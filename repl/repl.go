@@ -22,6 +22,7 @@ const PROMPT = ">>"
 
 func Start(in io.Reader, out io.Writer) {
 
+	// Can I add a comment here
 	scanner := bufio.NewScanner(in)
 
 	fmt.Printf("YNT %s REPL\n", VERSION)
