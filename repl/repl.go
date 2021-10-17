@@ -5,20 +5,21 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/salleaffaire/ynt/lexer"
 	"github.com/salleaffaire/ynt/parser"
+
+	"github.com/salleaffaire/ynt/lexer"
 )
 
 const VERSION = "0.0.1"
 
 const PROMPT = ">>"
 
-// func printParserErrors(out io.Writer, errors []string) {
-// 	io.WriteString(out, "Parser errors:\n")
-// 	for _, msg := range errors {
-// 		io.WriteString(out, "\t"+msg+"\n")
-// 	}
-// }
+func printParserErrors(out io.Writer, errors []string) {
+	io.WriteString(out, "Parser errors:\n")
+	for _, msg := range errors {
+		io.WriteString(out, "\t"+msg+"\n")
+	}
+}
 
 func Start(in io.Reader, out io.Writer) {
 
